@@ -11,5 +11,5 @@ Evaluate the relevance of the following paper to my research.
 %s
 </paper>
 
-Is the above paper relevant? Answer "Yes" or "No", using exactly one single word.
+Is the above paper very relevant? Be strict and don't admit loosely-related works. Answer "Yes" or "No", using exactly one single word.
 '''.strip()

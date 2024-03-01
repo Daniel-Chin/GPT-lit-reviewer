@@ -36,7 +36,7 @@ def main():
             print(title, file=f)
             print(abstract, file=f)
             print(file=f)
-    plt.hist([x[1] for x in citers], bins=10)
+    plt.hist([x[2] for x in citers], bins=10)
     plt.show()
 
 if __name__ == '__main__':
