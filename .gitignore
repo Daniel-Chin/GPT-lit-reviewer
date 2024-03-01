@@ -1,5 +1,6 @@
 key_location.txt
 workspace.py
 *.pyc
-citers.txt
+*.pickle
 results.txt
+results.csv
