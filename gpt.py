@@ -2,7 +2,19 @@ from functools import lru_cache
 
 import numpy as np
 from openai import OpenAI
-from openai.types.chat import ChatCompletionUserMessageParam
+from openai.types.chat import ChatCompletionUserMessageParam, ChatCompletion
+
+try:
+    from gpt_auto_retry import callWithAutoRetry
+except ImportError as e:
+    module_name = str(e).split('No module named ', 1)[1].strip().strip('"\'')
+    if module_name in (
+        'gpt_auto_retry', 
+    ):
+        print(f'Missing module {module_name}. Please download at')
+        print(f'https://github.com/Daniel-Chin/Python_Lib')
+        input('Press Enter to quit...')
+    raise e
 
 import workspace
 from load_key import loadKey
@@ -38,28 +50,28 @@ def rate(paper_info: str):
         ), 
         role='user', 
     )
-    print(prompt)
-    assert False
-    response = client().chat.completions.create(
-        model=GPT_MODEL, 
-        messages=[prompt], 
-        max_tokens=MAX_N_TOKENS,
-        temperature=0,    # should be inconsequential. 
-        logprobs=True,
-        top_logprobs=5,
-    )
+    def f():
+        return client().chat.completions.create(
+            model=GPT_MODEL, 
+            messages=[prompt], 
+            max_tokens=MAX_N_TOKENS,
+            temperature=0,    # should be inconsequential. 
+            logprobs=True,
+            top_logprobs=5,
+        )
+    response: ChatCompletion = callWithAutoRetry(f)
     choice = response.choices[0]
     lp = choice.logprobs
     assert lp is not None
     c = lp.content
     assert c is not None
-    yes, no = None, None
+    yes, no = 0, 0
     for top in c[0].top_logprobs:
         if top.token == 'Yes':
             yes = np.exp(top.logprob)
         elif top.token == 'No':
             no = np.exp(top.logprob)
-    if yes is None or no is None:
+    if yes + no == 0:
         print(f'{c[0].top_logprobs = }')
         assert False
     return yes / (yes + no)
