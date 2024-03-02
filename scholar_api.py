@@ -13,12 +13,17 @@ CITATIONCOUNT = 'citationCount'
 INFLUENTIALCITATIONCOUNT = 'influentialCitationCount'
 AUTHORS = 'authors'
 CITINGPAPER = 'citingPaper'
+AUTHORID = 'authorId'
+URL = 'url'
+NAME = 'name'
+AFFILIATIONS = 'affiliations'
 
 # keywords
 DATA = 'data'
 LIMIT = 'limit'
 
 PaperID = str
+AuthorID = str
 
 def httpStatus(response: requests.Response):
     if response.status_code == 200:
@@ -64,6 +69,29 @@ def getPapersThatCite(cited: PaperID, fields: List[str] = [
     if len(papers) == LIMIT:
         input('Warning: limit reached. Press Enter to continue.')
     return [x[CITINGPAPER] for x in papers]
+
+def searchAuthor(query: str, limit: int = 3):
+    RESOURCE = 'author/search'
+    response = requests.get(BASE_URL + RESOURCE, params=dict(
+        query=query, 
+        limit=limit, 
+        fields=','.join([AUTHORID, NAME, AFFILIATIONS, URL]),
+    ))
+    return unwrapResponse(response)
+
+def getPapersFromAuthor(author: AuthorID, fields: List[str] = [
+    PAPERID, TITLE, ABSTRACT, 
+]) -> List:
+    RESOURCE = f'author/{author}/papers'
+    LIMIT = 500
+    response = requests.get(BASE_URL + RESOURCE, params=dict(
+        fields=','.join(fields),
+        limit=LIMIT,
+    ))
+    papers = unwrapResponse(response)
+    if len(papers) == LIMIT:
+        input('Warning: limit reached. Press Enter to continue.')
+    return papers
 
 if __name__ == '__main__':        
     from console import console
