@@ -43,17 +43,15 @@ def client():
     print('ok')
     return c
 
-def rate(paper_info: str):
-    prompt = ChatCompletionUserMessageParam(
-        content=workspace.PROMPT % (
-            paper_info.strip()
-        ), 
+def rate(prompt: str):
+    history = [ChatCompletionUserMessageParam(
+        content=prompt, 
         role='user', 
-    )
+    )]
     def f():
         return client().chat.completions.create(
             model=GPT_MODEL, 
-            messages=[prompt], 
+            messages=history, 
             max_tokens=MAX_N_TOKENS,
             temperature=0,    # should be inconsequential. 
             logprobs=True,

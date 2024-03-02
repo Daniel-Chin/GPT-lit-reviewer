@@ -39,7 +39,7 @@ def rateThem(continue_from_interrupted=False):
             continue
         print()
         print(title)
-        score = rate(title + '\nAbstract: ' + abstract)
+        score = rate(workspace.PROMPT % (title + '\nAbstract: ' + abstract).strip())
         relevance = format(score, '.3%')
         print(f'{relevance = }')
         rated[paper_id] = (title, abstract, score, relevance)
