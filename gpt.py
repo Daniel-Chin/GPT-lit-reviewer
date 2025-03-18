@@ -23,7 +23,9 @@ from load_key import loadKey
 # GPT_MODEL = "gpt-3.5-turbo-16k"
 # GPT_MODEL = "gpt-4"
 # GPT_MODEL = "gpt-4-32k"
-GPT_MODEL = "gpt-4-turbo-preview"
+# GPT_MODEL = "gpt-4-turbo-preview"
+# GPT_MODEL = "o3-mini"
+GPT_MODEL = "gpt-4o-mini"
 
 MAX_N_TOKENS = 8
 
