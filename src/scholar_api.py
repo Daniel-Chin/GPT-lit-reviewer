@@ -1,4 +1,4 @@
-from typing import *
+import typing as tp
 import requests
 
 BASE_URL = 'https://api.semanticscholar.org/graph/v1/'
@@ -20,7 +20,6 @@ AFFILIATIONS = 'affiliations'
 
 # keywords
 DATA = 'data'
-LIMIT = 'limit'
 
 PaperID = str
 AuthorID = str
@@ -49,25 +48,24 @@ def prettySearchPaper(query: str, limit: int = 3):
         print(paper[PAPERID])
         print(paper[TITLE])
 
-def getPaperDetails(paperId: PaperID, fields: List[str]):
+def getPaperDetails(paperId: PaperID, fields: tp.List[str]):
     RESOURCE = f'paper/{paperId}'
     response = requests.get(BASE_URL + RESOURCE, params=dict(
         fields=','.join(fields), 
     ))
     return unwrapResponse(response)
 
-def getPapersThatCite(cited: PaperID, fields: List[str] = [
+def getPapersThatCite(cited: PaperID, fields: tp.List[str] = [
     PAPERID, TITLE, ABSTRACT, 
-]) -> List:
+], limit: int = 500) -> tp.List:
     RESOURCE = f'paper/{cited}/citations'
-    LIMIT = 500
     response = requests.get(BASE_URL + RESOURCE, params=dict(
         fields=','.join(fields),
-        limit=LIMIT,
+        limit=limit,
     ))
     papers = unwrapResponse(response)
-    if len(papers) == LIMIT:
-        input('Warning: limit reached. Press Enter to continue.')
+    if len(papers) == limit:
+        input('Warning: limit reached. Not all papers are fetched. Press Enter to continue.')
     return [x[CITINGPAPER] for x in papers]
 
 def searchAuthor(query: str, limit: int = 3):
@@ -79,18 +77,17 @@ def searchAuthor(query: str, limit: int = 3):
     ))
     return unwrapResponse(response)
 
-def getPapersFromAuthor(author: AuthorID, fields: List[str] = [
+def getPapersFromAuthor(author: AuthorID, fields: tp.List[str] = [
     PAPERID, TITLE, ABSTRACT, 
-]) -> List:
+], limit: int = 500) -> tp.List:
     RESOURCE = f'author/{author}/papers'
-    LIMIT = 500
     response = requests.get(BASE_URL + RESOURCE, params=dict(
         fields=','.join(fields),
-        limit=LIMIT,
+        limit=limit,
     ))
     papers = unwrapResponse(response)
-    if len(papers) == LIMIT:
-        input('Warning: limit reached. Press Enter to continue.')
+    if len(papers) == limit:
+        input('Warning: limit reached. Not all papers are fetched. Press Enter to continue.')
     return papers
 
 if __name__ == '__main__':        
