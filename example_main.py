@@ -1,3 +1,5 @@
+from src.seeker import *
+
 PAPER_ID = ( # can be arxiv ID, DOI, or Semantic Scholar ID
     'af997821231898a5f8d0fd78dad4eec526acabe5'
 )
@@ -13,3 +15,8 @@ Evaluate the relevance of the following paper to my research.
 
 Is the above paper very relevant? Be strict and don't admit loosely-related works. Answer "Yes" or "No", using exactly one single word.
 '''.strip()
+
+def main():
+    getAll(PAPER_ID)
+    rateThem(PROMPT, continue_from_interrupted=False)
+    showResults()

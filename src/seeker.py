@@ -1,29 +1,23 @@
-from typing import *
+import typing as tp
 import csv
 import pickle
 
 from matplotlib import pyplot as plt
 from tqdm import tqdm
 
-import workspace
 from scholar_api import *
 from gpt import rate
 
 CITERS = 'citers.pickle'
 RATED = 'rated.pickle'
 
-def main():
-    getAll()
-    rateThem(continue_from_interrupted=False)
-    showResults()
-
-def getAll():
-    papers = getPapersThatCite(workspace.PAPER_ID)
+def getAll(paper_id: str):
+    papers = getPapersThatCite(paper_id)
     print('Found papers:', len(papers))
     with open(CITERS, 'wb') as f:
         pickle.dump(papers, f)
 
-def rateThem(continue_from_interrupted=False):
+def rateThem(prompt: str, continue_from_interrupted=False):
     with open(CITERS, 'rb') as f:
         citers = pickle.load(f)
     if continue_from_interrupted:
@@ -39,7 +33,7 @@ def rateThem(continue_from_interrupted=False):
             continue
         print()
         print(title)
-        score = rate(workspace.PROMPT % (title + '\nAbstract: ' + abstract).strip())
+        score = rate(prompt % (title + '\nAbstract: ' + abstract).strip())
         relevance = format(score, '.3%')
         print(f'{relevance = }')
         rated[paper_id] = (title, abstract, score, relevance)
@@ -48,7 +42,7 @@ def rateThem(continue_from_interrupted=False):
 
 def showResults():
     with open(RATED, 'rb') as f:
-        rated: Dict[str, Tuple] = pickle.load(f)
+        rated: tp.Dict[str, tp.Tuple] = pickle.load(f)
     papers = [*rated.items()]
     papers.sort(key=lambda x: x[1][2], reverse=True)
     with open('results.txt', 'w', encoding='utf-8') as ftxt:
@@ -63,6 +57,3 @@ def showResults():
                 c.writerow((relevance, title, abstract, paper_id))
     plt.hist([x[1][2] for x in papers], bins=10)
     plt.show()
-
-if __name__ == '__main__':
-    main()

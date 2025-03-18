@@ -17,8 +17,8 @@ pip install -r requirements.txt
    - In this file, write the path to another file containing your OpenAI API key
    - In that key file, write: `OPENAI_API_KEY=sk-your-key-here`
 
-3. Create `workspace.py`:
-   - Copy `workspace_example.py` to `workspace.py`
+3. Create `main.py`:
+   - Copy `example_main.py` to `main.py`
    - Set your `PAPER_ID` (can be arxiv ID, DOI, or Semantic Scholar ID)
    - Modify the `PROMPT` to describe your research interest
 
