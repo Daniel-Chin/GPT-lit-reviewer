@@ -17,6 +17,7 @@ AUTHORID = 'authorId'
 URL = 'url'
 NAME = 'name'
 AFFILIATIONS = 'affiliations'
+EXTERNALIDS = 'externalIds'
 
 # keywords
 DATA = 'data'

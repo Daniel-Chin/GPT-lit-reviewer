@@ -16,8 +16,7 @@ except ImportError as e:
         input('Press Enter to quit...')
     raise e
 
-import workspace
-from load_key import loadKey
+from .load_key import loadKey
 
 # GPT_MODEL = "gpt-3.5-turbo"
 # GPT_MODEL = "gpt-3.5-turbo-16k"
