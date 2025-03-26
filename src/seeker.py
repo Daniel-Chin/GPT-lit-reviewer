@@ -6,9 +6,10 @@ import datetime
 from matplotlib import pyplot as plt
 from tqdm import tqdm
 
+from arxiv_api_python_client import ArxivAPI
+
 from .scholar_api import *
 from .gpt import rate
-from .scrape_arxiv import scrapeAbsFromArxiv, Throttle
 
 CITERS = 'citers.pickle'
 RATED = 'rated.pickle'
@@ -51,21 +52,26 @@ def getAll(
     n_in_semantic_scholar = 0
     n_rescued_by_arxiv = 0
     n_no_abs = 0
-    throttle = Throttle(3.0)
-    for p in tqdm(citers.values(), 'Scraping abstracts'):
-        if p[ABSTRACT] is None:
-            try:
-                arxiv_id = p[EXTERNALIDS]['ArXiv']
-            except KeyError:
-                pass
-            else:
-                p[ABSTRACT] = scrapeAbsFromArxiv(throttle, arxiv_id)
+    with ArxivAPI() as (query, getCacheStats, _):
+        for p in tqdm(citers.values(), 'amending abstracts'):
             if p[ABSTRACT] is None:
-                n_no_abs += 1
+                try:
+                    arxiv_id = p[EXTERNALIDS]['ArXiv']
+                except KeyError:
+                    pass
+                else:
+                    feed = query(id_list=[arxiv_id])
+                    entry, = feed.entries
+                    summary = entry.summary
+                    if summary is not None:
+                        p[ABSTRACT] = summary.value
+                if p[ABSTRACT] is None:
+                    n_no_abs += 1
+                else:
+                    n_rescued_by_arxiv += 1
             else:
-                n_rescued_by_arxiv += 1
-        else:
-            n_in_semantic_scholar += 1
+                n_in_semantic_scholar += 1
+    print(f'{getCacheStats() = }')
     print('Abstract availability:')
     print(f'  {n_in_semantic_scholar = }')
     print(f'  {n_rescued_by_arxiv = }')
@@ -83,8 +89,8 @@ def rateThem(prompt: str, continue_from_interrupted=False):
         rated = {}
     for paper in tqdm(citers):
         paper_id = paper[PAPERID]
-        title = paper[TITLE] or 'None'
-        abstract = paper[ABSTRACT] or 'None'
+        title = paper[TITLE] or '[Title unavailable]'
+        abstract = paper[ABSTRACT] or '[unavailable]'
         if paper_id in rated:
             continue
         print()
