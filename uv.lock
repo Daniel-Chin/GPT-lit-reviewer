@@ -27,7 +27,7 @@ wheels = [
 [[package]]
 name = "arxiv-api-python-client"
 version = "0.1.0"
-source = { git = "https://github.com/Daniel-Chin/arXiv-API-Python-client#1744326eef1857e86045870ed47082b1e5d82b8c" }
+source = { git = "https://github.com/Daniel-Chin/arXiv-API-Python-client#cb1cd68212da170b77b3b12f7ac6d27bd380892d" }
 dependencies = [
     { name = "atoma" },
     { name = "platformdirs" },
