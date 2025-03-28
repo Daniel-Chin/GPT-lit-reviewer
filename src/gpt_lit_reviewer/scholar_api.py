@@ -33,8 +33,8 @@ AuthorID = str
 Paper = tp.Dict[str, tp.Any]
 
 class NeighborType(Enum):
-    CITER_OF = 'citations'
-    CITED_BY = 'references'
+    CITER_OF = 'CITER_OF'
+    CITED_BY = 'CITED_BY'
 
 def unwrapResponse(response: requests.Response):
     if response.status_code == 200:
@@ -83,7 +83,11 @@ class ScholarAPI:
         fields: tp.List[str] = [PAPERID, TITLE, ABSTRACT], 
         limit: int = 500, 
     ) -> tp.List[Paper]:
-        RESOURCE = f'paper/{paper_id}/{neighborType.value}'
+        command = {
+            NeighborType.CITER_OF: 'citations',
+            NeighborType.CITED_BY: 'references',
+        }
+        RESOURCE = f'paper/{paper_id}/{command}'
         response = requests.get(ENDPOINT + RESOURCE, params=dict(
             fields=','.join(fields),
             limit=limit,
