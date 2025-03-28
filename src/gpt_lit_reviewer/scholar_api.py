@@ -50,7 +50,7 @@ class ScholarAPI:
             c = f.caller_with_freshness_threshold   # type: ignore
             return wraps(x)(c(cache_max_age))
         for name in (
-            'searchPaper', 'getPaperDetails', 'getPapersThatCite',
+            'searchPaper', 'getPaperDetails', 'getPaperNeighbors',
             'searchAuthor', 'getPapersFromAuthor',
         ):
             setattr(self, name, enableCache(getattr(self, name)))
