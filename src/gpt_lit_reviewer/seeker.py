@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 from arxiv_api_python_client import ArxivAPI
 
-import .scholar_api as sa
+from .import scholar_api as sa
 from .scholar_api import Paper, PaperID
 from .gpt import Arbiter
 
