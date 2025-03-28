@@ -4,3 +4,4 @@ main.py
 *.pickle
 results.txt
 results.csv
+*.egg-info
