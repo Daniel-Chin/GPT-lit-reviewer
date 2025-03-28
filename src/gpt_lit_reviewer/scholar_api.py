@@ -86,7 +86,7 @@ class ScholarAPI:
         command = {
             NeighborType.CITER_OF: 'citations',
             NeighborType.CITED_BY: 'references',
-        }
+        }[neighborType]
         RESOURCE = f'paper/{paper_id}/{command}'
         response = requests.get(ENDPOINT + RESOURCE, params=dict(
             fields=','.join(fields),

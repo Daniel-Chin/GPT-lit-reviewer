@@ -15,9 +15,12 @@ def impactOf(paper: Paper, grace_period: int):
     year: int | None = paper[sa.YEAR]
     if year is None:
         return
+    n_citations: int = paper[sa.CITATIONCOUNT]
+    if n_citations is None:
+        return
     now = datetime.datetime.now()
     elapsed = max(0, now.year - year - grace_period)
-    return paper[sa.CITATIONCOUNT] / elapsed
+    return n_citations / elapsed
 
 def filterByImpact(
     papers: tp.Iterable[Paper],
@@ -49,7 +52,7 @@ def verboseUnion(x: tp.Iterable[tp.Iterable[Paper]], /):
                 union[paper_id] = p
                 continue
             pp.update(p)    # shallow
-    print('All:', s, 'unique:', len(union), f'overlap: {(s - len(union)) / s:.0%}')
+    print(f'All = {s}; Unique = {len(union)}; Overlap = {(s - len(union)) / s:.0%}')
     return union.values()
 
 def amendAbstracts(
@@ -67,7 +70,7 @@ def amendAbstracts(
             if p[sa.ABSTRACT] is None:
                 try:
                     arxiv_id = p[sa.EXTERNALIDS]['ArXiv']
-                except KeyError:
+                except (KeyError, TypeError):   # 'NoneType' object is not subscriptable
                     pass
                 else:
                     feed = query(id_list=[arxiv_id])
