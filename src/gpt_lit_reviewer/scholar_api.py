@@ -1,6 +1,7 @@
 import typing as tp
 from datetime import timedelta
 from functools import wraps
+from enum import Enum
 
 import requests
 from cachier import cachier
@@ -17,6 +18,7 @@ CITATIONCOUNT = 'citationCount'
 INFLUENTIALCITATIONCOUNT = 'influentialCitationCount'
 AUTHORS = 'authors'
 CITINGPAPER = 'citingPaper'
+CITIEDPAPER = 'citedPaper'
 AUTHORID = 'authorId'
 URL = 'url'
 NAME = 'name'
@@ -29,6 +31,10 @@ DATA = 'data'
 PaperID = str
 AuthorID = str
 Paper = tp.Dict[str, tp.Any]
+
+class NeighborType(Enum):
+    CITER_OF = 'citations'
+    CITED_BY = 'references'
 
 def unwrapResponse(response: requests.Response):
     if response.status_code == 200:
@@ -70,10 +76,14 @@ class ScholarAPI:
         ))
         return unwrapResponse(response)
 
-    def getPapersThatCite(self, cited: PaperID, fields: tp.List[str] = [
-        PAPERID, TITLE, ABSTRACT, 
-    ], limit: int = 500) -> tp.List:
-        RESOURCE = f'paper/{cited}/citations'
+    def getPaperNeighbors(
+        self, 
+        neighborType: NeighborType, 
+        paper_id: PaperID, 
+        fields: tp.List[str] = [PAPERID, TITLE, ABSTRACT], 
+        limit: int = 500, 
+    ) -> tp.List:
+        RESOURCE = f'paper/{paper_id}/{neighborType.value}'
         response = requests.get(ENDPOINT + RESOURCE, params=dict(
             fields=','.join(fields),
             limit=limit,
@@ -81,7 +91,10 @@ class ScholarAPI:
         papers = unwrapResponse(response)
         if len(papers) == limit:
             input('Warning: limit reached. Not all papers are fetched. Press Enter to continue.')
-        return [x[CITINGPAPER] for x in papers]
+        return [x[{
+            NeighborType.CITER_OF: CITINGPAPER,
+            NeighborType.CITED_BY: CITIEDPAPER,
+        }[neighborType]] for x in papers]
 
     def searchAuthor(self, query: str, limit: int = 3):
         RESOURCE = 'author/search'

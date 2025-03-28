@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from openai import OpenAI
 
-from gpt_lit_reviewer.scholar_api import *
+import gpt_lit_reviewer.scholar_api as sa
 from gpt_lit_reviewer.gpt import Arbiter
 from gpt_lit_reviewer.seeker import (
     filterByImpact, verboseUnion, amendAbstracts,
@@ -28,13 +28,13 @@ def main(api_key: str):
     Does the above paper fit the criteria? Be strict and don't admit loosely-related works. Answer "Yes" or "No", using exactly one single word.
     '''.strip()
 
-    scholarApi = ScholarAPI(timedelta(days=1))
+    scholarApi = sa.ScholarAPI(timedelta(days=1))
 
     impactful_citers = {}
     for desc, paper_id in seed_papers.items():
-        papers = scholarApi.getPapersThatCite(paper_id, fields=[
-            PAPERID, TITLE, ABSTRACT, CITATIONCOUNT, YEAR, 
-            EXTERNALIDS, 
+        papers = scholarApi.getPaperNeighbors(sa.NeighborType.CITER_OF, paper_id, fields=[
+            sa.PAPERID, sa.TITLE, sa.ABSTRACT, sa.CITATIONCOUNT, sa.YEAR, 
+            sa.EXTERNALIDS, 
         ], limit=500)
         print('# papers citing', desc, ':', len(papers))
         impactful = [*filterByImpact(papers, cites_per_year_threshold=40)]
@@ -65,7 +65,7 @@ def main(api_key: str):
     arbiter = Arbiter(client, timedelta(weeks=6))
     for paper in union:
         print()
-        print(paper[TITLE])
+        print(paper[sa.TITLE])
         score = ratePaper(
             arbiter, GPT_MODEL, PROMPT, paper,
         )
