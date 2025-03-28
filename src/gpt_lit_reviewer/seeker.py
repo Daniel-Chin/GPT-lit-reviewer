@@ -7,16 +7,17 @@ from tqdm import tqdm
 
 from arxiv_api_python_client import ArxivAPI
 
-from .scholar_api import *
+import .scholar_api as sa
+from .scholar_api import Paper, PaperID
 from .gpt import Arbiter
 
 def impactOf(paper: Paper, grace_period: int):
-    year: int | None = paper[YEAR]
+    year: int | None = paper[sa.YEAR]
     if year is None:
         return
     now = datetime.datetime.now()
     elapsed = max(0, now.year - year - grace_period)
-    return paper[CITATIONCOUNT] / elapsed
+    return paper[sa.CITATIONCOUNT] / elapsed
 
 def filterByImpact(
     papers: tp.Iterable[Paper],
@@ -41,7 +42,7 @@ def verboseUnion(x: tp.Iterable[tp.Iterable[Paper]], /):
     for papers in x:
         for p in papers:
             s += 1
-            paper_id = p[PAPERID]
+            paper_id = p[sa.PAPERID]
             try:
                 pp = union[paper_id]
             except KeyError:
@@ -63,9 +64,9 @@ def amendAbstracts(
             tqdm(papers, 'amending abstracts')
             if show_progress else papers
         ):
-            if p[ABSTRACT] is None:
+            if p[sa.ABSTRACT] is None:
                 try:
-                    arxiv_id = p[EXTERNALIDS]['ArXiv']
+                    arxiv_id = p[sa.EXTERNALIDS]['ArXiv']
                 except KeyError:
                     pass
                 else:
@@ -73,8 +74,8 @@ def amendAbstracts(
                     entry, = feed.entries
                     summary = entry.summary
                     if summary is not None:
-                        p[ABSTRACT] = summary.value
-                if p[ABSTRACT] is None:
+                        p[sa.ABSTRACT] = summary.value
+                if p[sa.ABSTRACT] is None:
                     n_no_abs += 1
                 else:
                     n_rescued_by_arxiv += 1
@@ -88,8 +89,8 @@ def amendAbstracts(
         print(f'  {n_no_abs = }')
 
 def ratePaper(arbiter: Arbiter, model: str, prompt_template: str, paper: Paper):
-    title = paper[TITLE] or '[Title unavailable]'
-    abstract = paper[ABSTRACT] or '[unavailable]'
+    title = paper[sa.TITLE] or '[Title unavailable]'
+    abstract = paper[sa.ABSTRACT] or '[unavailable]'
     paper_desc = (title + '\nAbstract: ' + abstract).strip()
     return arbiter.judge(model, prompt_template % paper_desc)
 
@@ -103,15 +104,15 @@ def showAndSaveResults(
     with open(outTxtPath, 'w', encoding='utf-8') as ftxt:
         with open(outCsvPath, 'w', encoding='utf-8', newline='') as fcsv:
             c = csv.writer(fcsv)
-            c.writerow(('Score', TITLE, ABSTRACT, PAPERID))
+            c.writerow(('Score', sa.TITLE, sa.ABSTRACT, sa.PAPERID))
             for paper, score in sortedPapers:
                 score_str = format(score, '.3%')
-                title, abstract = paper[TITLE], paper[ABSTRACT]
+                title, abstract = paper[sa.TITLE], paper[sa.ABSTRACT]
                 print(score_str, file=ftxt)
                 print(title, file=ftxt)
                 print(abstract, file=ftxt)
                 print(file=ftxt)
 
-                c.writerow((score_str, title, abstract, paper[PAPERID]))
+                c.writerow((score_str, title, abstract, paper[sa.PAPERID]))
     plt.hist([score for _, score in sortedPapers], bins=10)
     plt.show()

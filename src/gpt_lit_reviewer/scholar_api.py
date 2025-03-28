@@ -82,7 +82,7 @@ class ScholarAPI:
         paper_id: PaperID, 
         fields: tp.List[str] = [PAPERID, TITLE, ABSTRACT], 
         limit: int = 500, 
-    ) -> tp.List:
+    ) -> tp.List[Paper]:
         RESOURCE = f'paper/{paper_id}/{neighborType.value}'
         response = requests.get(ENDPOINT + RESOURCE, params=dict(
             fields=','.join(fields),
