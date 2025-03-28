@@ -3,7 +3,11 @@ from datetime import timedelta
 from openai import OpenAI
 
 from gpt_lit_reviewer.scholar_api import *
-from gpt_lit_reviewer.seeker import *
+from gpt_lit_reviewer.gpt import Arbiter
+from gpt_lit_reviewer.seeker import (
+    filterByImpact, verboseUnion, amendAbstracts,
+    showAndSaveResults, ratePaper,
+)
 
 def main(api_key: str):
     seed_papers = { # can be arxiv ID, DOI, or Semantic Scholar ID
