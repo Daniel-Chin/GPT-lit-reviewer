@@ -113,6 +113,7 @@ def showAndSaveResults(
                 title, abstract = paper[sa.TITLE], paper[sa.ABSTRACT]
                 print(score_str, file=ftxt)
                 print(title, file=ftxt)
+                print(paper[sa.YEAR], file=ftxt)
                 print(abstract, file=ftxt)
                 print(file=ftxt)
 
